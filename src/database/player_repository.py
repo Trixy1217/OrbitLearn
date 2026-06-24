@@ -33,16 +33,44 @@ def get_player(player_id):
 
     connection = get_connection()
 
-    cursor = connection.execute("""
-       SELECT * FROM players WHERE id = ?
+    try:
+            cursor = connection.execute("""
+            SELECT * FROM players WHERE id = ?
 
 
 
-""",(player_id,) )
-    
-    player = cursor.fetchone()
-    connection.close()
-    return player
+            """,(player_id,) )
+            
+            player = cursor.fetchone()
+            connection.close()
+            return player ##ESO RETRONA TUPLA CAMBIAR A DICCIONARIO LUEGO el codigoe sta aabajo
+
+            """def get_player(player_id):
+            connection = get_connection()
+
+            cursor = connection.execute("""
+            ### SELECT * FROM players WHERE id = ?
+            """, (player_id,))
+
+                row = cursor.fetchone()
+                connection.close()
+
+                if row is None:
+                    return None
+
+                return {
+                    "id": row[0],
+                    "nombre": row[1],
+                    "clase": row[2]
+                }"""
+            
+
+    except Exception as e:
+         
+             return print(f"Ha ocurrido un error seguramente el usuario no se encontró: {e}")
+    finally:
+         if connection:
+          connection.close()
 
 
 def get_id_player_with_nickname(nickname):

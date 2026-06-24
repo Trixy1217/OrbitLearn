@@ -57,12 +57,14 @@ with col1:
                       pdf_path = temp_pdf.name
 
 
-                 chunks,current_id = pdfloader(pdf_path,nombre)
+                 chunks,current_id= pdfloader(pdf_path,nombre)
 
                  vector_store =  create_vectorstore(chunks)
 
                  if chunks:
                      st.success(f"User has been created. ID: {current_id}")
+                     st.success(f"User has been created. ID: {kind}")
+
 
                  if vector_store:
                      
@@ -84,6 +86,8 @@ with col1:
                
                  
                st.success(f"{nombre} has been created with class: {clase}")
+
+               st.session_state["player_id"] = current_id
             
             
             

@@ -27,6 +27,9 @@ def pdfloader(path: str, nombre: str):
                     "chunk_index": i
                 })
 
+            oe = chunks[0].metadata["user_id"]  
+            kind = type(oe)
+
             return chunks,current_id
     except Exception as e:
           print("PDFLOADER ERROR:", e)
