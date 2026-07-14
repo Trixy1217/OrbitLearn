@@ -1,13 +1,20 @@
 import streamlit as st
 from llms.gemma2b import model_gemma2b
-from prompts.tutorsimpleprompt import SYSTEMPROMPT, SYSTEMPROMPT1
+from llms.smollm2 import model_smollm2
+from prompts.tutorsimpleprompt import SYSTEMPROMPT, SYSTEMPROMPT_DESICION
 from langchain_core.prompts import PromptTemplate
 from rag.retriever import retrieve_context
 from src.database.player_repository import get_player
 from langchain_core.messages import AIMessage,SystemMessage, HumanMessage
+from llms.gemini import gemini_model
+import json
 
 
-llm = model_gemma2b()
+#llm = model_gemma2b()
+
+llm = gemini_model()
+
+llmdecision = gemini_model()
 
 
 st.title("📚 Tutor AI")
@@ -38,19 +45,17 @@ if query:
     current_id = 1
     clase = "backend"
 
-    results = retrieve_context(current_id, query)
+  
+  #  best_score = results[0][1]
 
-    context = "\n\n".join(
-        doc.page_content for doc, score in results
-    )
+  #  if best_score < 0.35:
+  #       use_context = True
 
-    best_score = results[0][1]
+  #  else:
+  #       use_context = False
 
-    if best_score < 0.35:
-         use_context = True
 
-    else:
-         use_context = False
+         ## QUE EL LLM TOME LA DECISIÓN UNN LLM MAS PEQUEÑO DEA CUERDO AL SYSTEM PROMPT
 
 
     
@@ -70,11 +75,23 @@ if query:
 
          placeholder.write("Pensando...")
 
-         responselite = llm.invoke(SYSTEMPROMPT1.format(clase = clase, query=query)) 
-            
-            
-         if use_context == True:
-                messages = [SystemMessage(content=SYSTEMPROMPT.format(clase=clase)),
+         decision_messages = [
+        SystemMessage(content=SYSTEMPROMPT_DESICION),
+        HumanMessage(content=query)
+        ]
+
+         response_decision = llmdecision.invoke(decision_messages)
+
+
+                
+         if response_decision.content == "RAG":
+                  results = retrieve_context(current_id, query)
+
+                  context = "\n\n".join(
+                     doc.page_content for doc, score in results
+                  )
+
+                  messages = [SystemMessage(content=SYSTEMPROMPT.format(clase=clase)),
                             HumanMessage(
                                 content=f"""CONTEXTO:
                                         {context}
@@ -84,9 +101,10 @@ if query:
                                         """
                                         )] 
 
-                response = llm.invoke(messages) 
+                  response = llm.invoke(messages) 
 
-         if use_context == False:
+         if response_decision.content == "NORAG":
+                    context = None
               
                     response = llm.invoke(query) 
 
@@ -105,6 +123,8 @@ if query:
 
 
          placeholder.write(response.content)
+         placeholder.write(response_decision.content)
+
 
      
     player_id = st.session_state.get("player_id")
@@ -115,7 +135,8 @@ if query:
 
 
 
-    st.success(context)
+    if context:
+      st.success(context)
 
 
 

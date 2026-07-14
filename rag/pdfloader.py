@@ -31,6 +31,7 @@ def pdfloader(path: str, nombre: str):
             kind = type(oe)
 
             return chunks,current_id
+    
     except Exception as e:
           print("PDFLOADER ERROR:", e)
           return  None

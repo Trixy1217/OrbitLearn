@@ -12,6 +12,7 @@ dependencies = [
     "langchain-ollama>=1.1.0",
     "langchain-text-splitters>=1.1.2",
     "langfuse>=4.7.1",
+    "openai>=2.44.0",
     "pypdf>=6.13.2",
     "python-dotenv>=1.2.2",
     "streamlit>=1.58.0",

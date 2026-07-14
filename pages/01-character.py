@@ -34,7 +34,11 @@ with col1:
 
         nombre = st.text_input("Nickname of character")
 
+        contraseña = st.text_input("Password of character")
+ 
+
         clase = st.selectbox("Choose your class:",["Backend","Frontend","Data", "Cybersecurity"])
+        
 
 
         if st.button("Create a player"):
@@ -42,7 +46,7 @@ with col1:
          
 
 
-            creator = create_player(nombre,clase)
+            creator = create_player(nombre,contraseña,clase)
             if creator:
                
                if pdf_file is not None:
@@ -62,8 +66,8 @@ with col1:
                  vector_store =  create_vectorstore(chunks)
 
                  if chunks:
+                     st.session_state["player_id"] = current_id
                      st.success(f"User has been created. ID: {current_id}")
-                     st.success(f"User has been created. ID: {kind}")
 
 
                  if vector_store:
@@ -87,23 +91,25 @@ with col1:
                  
                st.success(f"{nombre} has been created with class: {clase}")
 
-               st.session_state["player_id"] = current_id
             
             
             
                """RECORDAR MEJORAR EL SWITCHPAGE PARA TEMAS DE ERRORES"""
-            
-            
-            
-            
-            
 
+
+               st.switch_page("pages/03-cuestionario_vak_tdah.py")
+
+
+
+            
             elif creator == False:
                  
                 st.error(f"Currently exist a problem")
 
                  
 
+        if st.button("I have a account"):
+            st.switch_page("pages/02-login.py")
 
                  
                  
@@ -124,7 +130,7 @@ with hero:
 
 st.subheader("Jugadores registrados:")
 
-players = get_player(1)
+players = get_player(4)
 
 st.write(players)
 

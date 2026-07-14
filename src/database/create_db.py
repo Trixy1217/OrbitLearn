@@ -10,9 +10,11 @@ cursor.execute("""
 CREATE TABLE IF NOT EXISTS players (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    pass TEXT NOT NULL,
     class TEXT NOT NULL,
     level INTEGER DEFAULT 1,
-    xp INTEGER DEFAULT 0
+    xp INTEGER DEFAULT 0,
+    learning_style TEXT
 )
 """)
 

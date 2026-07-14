@@ -27,4 +27,4 @@ col1, col2, col3 = st.columns([1,2,1])
 
 with col2:
     if st.button("Comenzar misión", use_container_width=True):
-        st.switch_page("pages/character.py")
+        st.switch_page("pages/01-character.py")
