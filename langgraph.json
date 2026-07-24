@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "."
+  ],
+  "graphs": {
+    "orbitlearn": "./src/agents/graph/main.py:graph"
+  },
+  "env": ".env"
+}

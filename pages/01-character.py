@@ -2,8 +2,10 @@ import streamlit as st
 import tempfile
 from rag.pdfloader import pdfloader
 
-from src.database.player_repository import create_player, get_player
+from src.database.player_repository import create_user, get_player
 from rag.vectorstore import create_vectorstore
+from datetime import datetime, UTC
+
 
 
 st.set_page_config(
@@ -34,7 +36,17 @@ with col1:
 
         nombre = st.text_input("Nickname of character")
 
-        contraseña = st.text_input("Password of character")
+        email = st.text_input("Your Email")
+
+
+        contraseña = st.text_input("Password of character",     type="password")
+        
+        confirm_password = st.text_input("Confirmar contraseña", type="password")
+
+
+
+
+
  
 
         clase = st.selectbox("Choose your class:",["Backend","Frontend","Data", "Cybersecurity"])
@@ -42,81 +54,92 @@ with col1:
 
 
         if st.button("Create a player"):
+
+            if not nombre.strip():
+               st.error("Nickname is required.")
+
+            elif contraseña != confirm_password:
+                 st.error("Passwords do not match.")
+
+            elif len(contraseña) < 8:
+               st.error("Password must have at least 8 characters.")
             
          
 
+            else:
+                    current_timestamp = datetime.now(UTC).isoformat()
 
-            creator = create_player(nombre,contraseña,clase)
-            if creator:
-               
-               if pdf_file is not None:
-                 
-                 with tempfile.NamedTemporaryFile(
-                      delete=False,
-                      suffix=".pdf"
-                 ) as temp_pdf:
-                      
-                      temp_pdf.write(pdf_file.getbuffer())
+                    creator = create_user(nombre,contraseña,email,login_method="Password",role="student",last_signed_in=current_timestamp,clase=clase )
+                    if creator:
+                    
+                        if pdf_file is not None:
+                            
+                            with tempfile.NamedTemporaryFile(
+                                delete=False,
+                                suffix=".pdf"
+                            ) as temp_pdf:
+                                
+                                temp_pdf.write(pdf_file.getbuffer())
 
-                      pdf_path = temp_pdf.name
-
-
-                 chunks,current_id= pdfloader(pdf_path,nombre)
-
-                 vector_store =  create_vectorstore(chunks)
-
-                 if chunks:
-                     st.session_state["player_id"] = current_id
-                     st.success(f"User has been created. ID: {current_id}")
+                                pdf_path = temp_pdf.name
 
 
-                 if vector_store:
-                     
-                     st.success("Vector has been created")
+                            chunks,current_id= pdfloader(pdf_path,nombre)
 
-                 else:
-                     st.error("ERROR: Creating vector")
+                            vector_store =  create_vectorstore(chunks)
 
-
-
+                            if chunks:
+                                st.session_state["player_id"] = current_id
+                                st.success(f"User has been created. ID: {current_id}")
 
 
+                            if vector_store:
+                                
+                                st.success("Vector has been created")
 
-                 st.success(
-            f"PDF procesado correctamente. Se generaron {len(chunks)} chunks."
-                 )
-
-                 st.write(chunks[:3])
-               
-                 
-               st.success(f"{nombre} has been created with class: {clase}")
-
-            
-            
-            
-               """RECORDAR MEJORAR EL SWITCHPAGE PARA TEMAS DE ERRORES"""
-
-
-               st.switch_page("pages/03-cuestionario_vak_tdah.py")
+                            else:
+                                st.error("ERROR: Creating vector")
 
 
 
-            
-            elif creator == False:
-                 
-                st.error(f"Currently exist a problem")
-
-                 
-
-        if st.button("I have a account"):
-            st.switch_page("pages/02-login.py")
-
-                 
-                 
 
 
 
-        
+                            st.success(
+                        f"PDF procesado correctamente. Se generaron {len(chunks)} chunks."
+                            )
+
+                            st.write(chunks[:3])
+                        
+                            
+                        st.success(f"{nombre} has been created with class: {clase}")
+
+                        
+                        
+                        
+                        """RECORDAR MEJORAR EL SWITCHPAGE PARA TEMAS DE ERRORES"""
+
+
+                        st.switch_page("pages/03-cuestionario_vak_tdah.py")
+
+
+
+                    
+                    elif creator == False:
+                        
+                        st.error(f"Currently exist a problem")
+
+                        
+
+if st.button("I have a account"):
+ st.switch_page("pages/02-login.py")
+
+                            
+                        
+
+
+
+                    
 
 
 st.divider()
@@ -127,11 +150,8 @@ with hero:
     st.image("img/character.png", width=180)
     st.title("OrbitLearn")
     st.caption("Aprende mientras avanzas en tu aventura")
-
-st.subheader("Jugadores registrados:")
-
-players = get_player(4)
-
-st.write(players)
+    st.subheader("Jugadores registrados:")
+    players = get_player(1)
+    st.write(players)
 
 

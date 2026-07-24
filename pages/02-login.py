@@ -1,5 +1,5 @@
 import streamlit as st
-from src.database.player_repository import get_player_with_nickcname
+from src.database.player_repository import login_user
 
 
 
@@ -7,25 +7,25 @@ st.title("Coach for tech students")
 
 nombre = st.text_input("Nickname of character")
 
-contraseña = st.text_input("Write your password")
+contraseña = st.text_input("Write your password", type="password"
+)
 
 if st.button("LOGIN"):
-    try:
-        player = get_player_with_nickcname(nombre)
-    except Exception as e:
-        st.error(e)
-        st.stop()
 
-    if player is None:
-        st.error("El usuario no existe.")
+    if not nombre:
+        st.error("Nickname is required.")
+
+    elif not contraseña:
+        st.error("Password is required.")
+
+    elif login_user(nombre, contraseña):
+        st.success(f"Welcome {nombre}")
+        # st.switch_page()
+
     else:
-        idplayer = player[0]
-        passw = player[2]
-        name = player[1]
+        st.error("Invalid username or password.")
 
-        if contraseña == passw:
-            st.success("Successful")
-            st.session_state["player_id"] = idplayer
-        else:
-            st.error("Contraseña incorrecta.")
+      
+
+   
 

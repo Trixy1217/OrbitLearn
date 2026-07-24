@@ -154,6 +154,19 @@ VAK_QUESTIONS = [
 
 
 
+descriptions = {
+    "visual":
+        "Aprendes mejor con imágenes, diagramas y ejemplos visuales.",
+
+    "auditory":
+        "Aprendes mejor escuchando explicaciones detalladas.",
+
+    "kinesthetic":
+        "Aprendes mejor practicando y experimentando.",
+
+    "mixed":
+        "Tienes un equilibrio entre los tres estilos."
+}
 
 
 
@@ -167,8 +180,12 @@ if "scores" not in st.session_state:
         "kinesthetic": 0
     }
 
+if "vak_mode" not in st.session_state:
+    st.session_state.vak_mode = None
 
 if st.session_state.current_question < len(VAK_QUESTIONS):
+    progress = (st.session_state.current_question / len(VAK_QUESTIONS))
+    st.progress(progress)
     question = VAK_QUESTIONS[st.session_state.current_question]
 
     st.subheader(
@@ -187,32 +204,68 @@ if st.session_state.current_question < len(VAK_QUESTIONS):
         st.session_state.current_question += 1
         st.rerun()
 
+if "tdah_mode" not in st.session_state:
+    st.session_state.tdah_mode = None
 
 
-scores = st.session_state.scores
+if st.session_state.current_question >= len(VAK_QUESTIONS):
+    if st.session_state.tdah_mode is None:
 
-max_score = max(scores.values())
+        tdah_mode = st.radio(
+            "¿Cómo prefieres aprender hoy?",
+            [
+                "Ráfagas cortas (5 min)",
+                "Sesión normal (15 min)",
+                "Inmersión total (Hiperfoco)"
+            ]
+        )
 
-dominant = [
-    learning_style
-    for learning_style, score in scores.items()
-    if score == max_score
-]
+        if st.button("Finalizar"):
+            st.session_state.tdah_mode = tdah_mode
+            st.rerun()
 
-learning_style_final = dominant[0] if len(dominant) == 1 else "mixed"
+    else:
 
+        scores = st.session_state.scores
 
-set_learning_style(current_id,learning_style_final)
+        max_score = max(scores.values())
 
-st.title(learning_style_final)
-st.title(current_id)
+        dominant = [
+            learning_style
+            for learning_style, score in scores.items()
+            if score == max_score
+        ]
 
-oelo = get_player(current_id)
-learning = oelo[6]
+        learning_style_final = (
+            dominant[0] if len(dominant) == 1 else "mixed"
+        )
+        st.session_state.vak_mode = learning_style_final
 
-st.title(learning)
+        percentage = round((max_score / len(VAK_QUESTIONS)) * 100)
 
+        tdah_option = st.session_state.tdah_mode
 
+        set_learning_style(current_id, learning_style_final,tdah_option)
 
+        st.success("¡Cuestionario completado!")
 
+        st.success(
+            f"Tu estilo principal es {learning_style_final} "
+            f"con {percentage}%.\n\n"
+            f"Tu ritmo de hoy es {st.session_state.tdah_mode}."
+        )
 
+        st.info(descriptions[learning_style_final])
+
+        st.write("### Puntajes")
+
+        st.write(f"👁️ Visual: {scores['visual']}/8")
+        st.write(f"👂 Auditivo: {scores['auditory']}/8")
+        st.write(f"✋ Kinestésico: {scores['kinesthetic']}/8")
+
+        st.write(f"ID del jugador: {current_id}")
+
+        oelo = get_player(current_id)
+        learning = oelo[6]
+
+        st.write(f"Estilo guardado en BD: {learning}")
